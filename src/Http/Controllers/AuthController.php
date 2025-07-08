@@ -31,6 +31,9 @@ class AuthController extends BaseController
         $credentials = $request->only('email', 'password');
 
         try {
+            $userModel = config('auth-module.user_model', \App\Models\User::class);
+            config(['auth.providers.users.model' => $userModel]);
+            
             if (!$token = JWTAuth::attempt($credentials)) {
                 return $this->errorResponse(
                     config('auth-module.messages.login_failed', 'Invalid credentials'),
