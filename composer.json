@@ -1,5 +1,5 @@
 {
-    "name": "strichpunkt/laravel-auth-module",
+    "name": "ytcsp/laravel-auth-module",
     "description": "A comprehensive Laravel authentication package providing login, register, forget password, reset password functionality with middleware",
     "type": "library",
     "license": "MIT",
