@@ -30,6 +30,49 @@ A comprehensive Laravel package that provides a complete authentication system w
 composer require strichpunkt/laravel-auth-module
 ```
 
+### Install Without Packagist (Direct VCS Repository)
+
+If you do NOT want to publish the package on Packagist, require it directly from Git (GitHub, GitLab, etc.). Add a VCS repository entry to your application's `composer.json`:
+
+```json
+{
+  "repositories": [
+    { "type": "vcs", "url": "git@github.com:ytcsp/laravel-auth-module.git" }
+  ],
+  "require": {
+    "ytcsp/laravel-auth-module": "dev-main"
+  }
+}
+```
+
+Then run:
+
+```bash
+composer update ytcsp/laravel-auth-module
+```
+
+For stability and caching, create git tags (e.g. `v1.0.0`) and require a version:
+
+```bash
+composer require ytcsp/laravel-auth-module:^1.0
+```
+
+Optional (dev branch alias) — add to this package `composer.json` so consumers can use `^1.1` semantics while tracking main:
+
+```json
+"extra": {
+  "branch-alias": {
+    "dev-main": "1.1.x-dev"
+  }
+}
+```
+
+If you already have a published config file and the package adds new config keys, merge them manually or republish with:
+
+```bash
+php artisan vendor:publish --tag=auth-module-config --force
+```
+
 2. **Publish the configuration file:**
 
 ```bash

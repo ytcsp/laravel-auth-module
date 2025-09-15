@@ -32,6 +32,8 @@ class AuthController extends BaseController
 
         try {
             if (!$token = JWTAuth::attempt($credentials)) {
+                // Log failed attempt
+                $this->authService->logLoginAttempt($credentials['email'], false, null);
                 return $this->errorResponse(
                     config('auth-module.messages.login_failed', 'Invalid credentials'),
                     401
@@ -42,8 +44,12 @@ class AuthController extends BaseController
             
             // Check if email verification is required
             if (config('auth-module.email_verification.enabled') && !$user->hasVerifiedEmail()) {
+                $this->authService->logLoginAttempt($credentials['email'], false, $user->id ?? null);
                 return $this->errorResponse('Please verify your email address', 403);
             }
+
+            // Log success
+            $this->authService->logLoginAttempt($credentials['email'], true, $user->id ?? null);
 
             return $this->successResponse([
                 'user' => $user,
@@ -53,6 +59,8 @@ class AuthController extends BaseController
             ], config('auth-module.messages.login_success', 'Successfully logged in'));
 
         } catch (\Exception $e) {
+            // Log unexpected failure
+            $this->authService->logLoginAttempt($credentials['email'] ?? 'unknown', false, null);
             return $this->errorResponse('Login failed: ' . $e->getMessage(), 500);
         }
     }

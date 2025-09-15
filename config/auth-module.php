@@ -187,4 +187,24 @@ return [
         'account_lockout' => env('AUTH_MODULE_ACCOUNT_LOCKOUT', true),
         'password_history' => env('AUTH_MODULE_PASSWORD_HISTORY', false),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Login Logging
+    |--------------------------------------------------------------------------
+    |
+    | Configure logging of login attempts. When enabled each login attempt
+    | (success or failure) will be stored in the database table defined below
+    | and optionally also written to the specified log channel.
+    |
+    */
+    'login_logging' => [
+        'enabled' => env('AUTH_MODULE_LOGIN_LOGGING', true),
+        'table' => 'login_logs',
+        'log_channel' => env('AUTH_MODULE_LOGIN_LOG_CHANNEL', env('LOG_CHANNEL', 'stack')),
+        // redact password field from any context
+        'fields' => [
+            'email', 'user_id', 'ip_address', 'user_agent', 'success'
+        ]
+    ],
 ];

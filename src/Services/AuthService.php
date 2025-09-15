@@ -5,6 +5,8 @@ namespace Strichpunkt\LaravelAuthModule\Services;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Log;
+use Strichpunkt\LaravelAuthModule\Models\LoginLog;
 
 class AuthService
 {
@@ -95,5 +97,42 @@ class AuthService
     public function generateTokenForUser(object $user): string
     {
         return JWTAuth::fromUser($user);
+    }
+
+    /**
+     * Log a login attempt (success or failure)
+     */
+    public function logLoginAttempt(string $email, bool $success, ?int $userId = null): void
+    {
+        if (!config('auth-module.login_logging.enabled', true)) {
+            return; // feature disabled
+        }
+
+        $data = [
+            'email' => $email,
+            'user_id' => $userId,
+            'ip_address' => request()->ip(),
+            'user_agent' => substr((string)request()->userAgent(), 0, 1000),
+            'success' => $success,
+        ];
+
+        // Persist to database (ignore errors to not block login)
+        try {
+            $table = config('auth-module.login_logging.table', 'login_logs');
+            $model = new LoginLog();
+            $model->setTable($table);
+            $model->fill($data);
+            $model->save();
+        } catch (\Throwable $e) {
+            Log::debug('AuthModule login log db failure: '.$e->getMessage());
+        }
+
+        // Also write to application log channel
+        try {
+            $channel = config('auth-module.login_logging.log_channel', config('logging.default'));
+            Log::channel($channel)->info('Login attempt', $data);
+        } catch (\Throwable $e) {
+            Log::debug('AuthModule login log channel failure: '.$e->getMessage());
+        }
     }
 } 
